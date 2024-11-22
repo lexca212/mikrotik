@@ -1,0 +1,11 @@
+#settin pertama untuk deteksi potensi sql Injection
+/ip firewall layer7-protocol
+add name=SQL_Injection regexp="(select\\s+\\w+\\s+from\\s+\\w+|union\\s+select\\s+|\\s+or\\s+1=1|drop\\s+table|insert\\s+into\\s+|update\\s+\\w+\\s+set\\s+|delete\\s+from\\s+)"
+/ip firewall filter
+# Rule untuk mendeteksi dan mencatat SQL Injection
+add chain=forward protocol=tcp dst-port=80,443 layer7-protocol=SQL_Injection action=add-src-to-address-list \
+    address-list=SQL_Attackers address-list-timeout=1d log=yes log-prefix="SQL Injection Detected: " \
+    comment="Detect SQL Injection"
+
+# Rule untuk memblokir IP yang terdeteksi
+add chain=forward src-address-list=SQL_Attackers action=drop comment="Block SQL Attackers"
