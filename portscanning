@@ -1,0 +1,10 @@
+# Mendeteksi aktivitas port scanning
+/ip firewall filter
+add chain=input protocol=tcp connection-state=new tcp-flags=syn action=add-src-to-address-list \
+    address-list=Port_Scanner address-list-timeout=1d comment="Detect Port Scanning"
+
+# Memblokir IP yang terdeteksi sebagai port scanner
+add chain=input src-address-list=Port_Scanner action=drop comment="Block Port Scanners"
+
+# Logging aktivitas port scanning (opsional)
+add chain=input src-address-list=Port_Scanner action=log log-prefix="PORT SCANNER DETECTED: " comment="Log Port Scanners"
